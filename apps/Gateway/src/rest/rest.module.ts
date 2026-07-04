@@ -6,6 +6,9 @@ import { PassengerModule } from './passenger/passenger.module';
 
 @Module({
   imports: [
+    AdminModule,
+    PassengerModule,
+    DriverModule,
     RouterModule.register([
       {
         path: 'admin',
