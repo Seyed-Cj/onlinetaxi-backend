@@ -1,9 +1,9 @@
 import { HttpStatus } from '@nestjs/common';
 
 export class ServiceClientContextDto {
-  query?: string;
-  set?: string;
-  options?: string;
+  query?: object | any;
+  set?: object | any;
+  options?: object | any;
 }
 
 export class ServiceClientActionInputDto extends ServiceClientContextDto {

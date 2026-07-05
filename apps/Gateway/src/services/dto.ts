@@ -1,7 +1,7 @@
 export class ServiceClientOutputDto<ContextDto> {
-  context: ContextDto | undefined;
-  status: 'SUCCEED' | 'FAILED' | null | undefined;
-  code: number | null | undefined;
+  context!: ContextDto;
+  status!: 'SUCCEED' | 'FAILED' | null;
+  code!: number | null;
   message?: string | null;
   error?: string | null;
   data?: any;
