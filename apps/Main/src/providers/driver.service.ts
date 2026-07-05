@@ -35,7 +35,6 @@ export class DriverService {
     const key = `otp:${DriverService.role}:${phone}`;
 
     const savedOtp = await this.redis.cacheCli.get(key);
-    console.log(savedOtp)
     if (!savedOtp)
       throw new SrvErr(HttpStatus.BAD_REQUEST, 'Otp not found or expired');
 
