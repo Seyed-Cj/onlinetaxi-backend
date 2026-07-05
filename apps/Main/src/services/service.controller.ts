@@ -2,6 +2,7 @@ import { Controller, HttpStatus } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { SelfActionService } from './actions.service';
 import { SelfEventService } from './events.service';
+import { ServiceClientActionInputDto, ServiceClientOutputDto } from './dto';
 
 @Controller()
 export class ServiceController {
@@ -11,7 +12,9 @@ export class ServiceController {
   ) {}
 
   @MessagePattern('callAction')
-  async CallTestMessage(data) {
+  async CallTestMessage(
+    data: ServiceClientActionInputDto,
+  ): Promise<ServiceClientOutputDto<ServiceClientActionInputDto>> {
     try {
       const res = await this.actions.findAndCall(data);
       return {
