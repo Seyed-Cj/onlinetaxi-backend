@@ -76,4 +76,116 @@ export class DriverService {
       },
     };
   }
+
+  async authorize({
+    query: { token },
+  }: ServiceClientContextDto): Promise<ServiceResponseData> {
+    let isAuthorized = false;
+    let clearCookie: string | null = 'auth_driver';
+
+    let tokenData;
+    let driver;
+    let session;
+
+    const decodedToken: any = this.tokenService.decode(token);
+
+    if (decodedToken) {
+      const driverId = decodedToken.did;
+      driver = await this.getDriverById(driverId);
+      if (driver) {
+        session = await this.getSessionById(decodedToken.sid);
+        const now = Date.now();
+
+        if (+new Date(decodedToken.refreshExpiresAt) <= now) {
+          await this.pg.models.DriverSession.destroy({
+            where: { id: decodedToken.sid },
+          });
+          await this.redis.cacheCli.del(`driverSession_${decodedToken.sid}`);
+        } else if (+new Date(decodedToken.accessExpiresAt) <= now) {
+          if (session) {
+            tokenData = this.tokenService.generateAccessToken({
+              driverId,
+              sessionId: session.id,
+            });
+
+            session = await this.extendSession(
+              session.id,
+              tokenData.payload.refreshExpiresAt,
+            );
+
+            isAuthorized = true;
+          }
+        } else {
+          if (session) isAuthorized = true;
+        }
+      }
+    }
+    if (isAuthorized) clearCookie = null;
+    return {
+      data: {
+        isAuthorized,
+        driver,
+        session,
+        clearCookie,
+        tokenData,
+        isActive: driver?.isActive ?? null,
+      },
+    };
+  }
+
+  private async getDriverById(id: string) {
+    let driver = null;
+    let _driver: any = await this.redis.cacheCli.get(`driver_${id}`);
+
+    if (!_driver) {
+      _driver = await this.pg.models.Driver.findByPk(id);
+      if (!_driver) return null;
+
+      _driver = JSON.parse(JSON.stringify(_driver));
+      await this.redis.cacheCli.set(
+        `driver_${_driver.id}`,
+        JSON.stringify(_driver),
+        'EX',
+        900,
+      );
+      driver = _driver;
+    } else {
+      driver = JSON.parse(_driver);
+    }
+    return driver;
+  }
+
+  private async getSessionById(id: string) {
+    let session = null;
+    let _session: any = await this.redis.cacheCli.get(`driverSession_${id}`);
+    if (!_session) {
+      _session = await this.pg.models.DriverSession.findByPk(id);
+      if (!_session) return null;
+
+      await this.redis.cacheCli.set(
+        `driverSession_${_session.id}`,
+        JSON.stringify(_session),
+        'EX',
+        900,
+      );
+      session = _session;
+    } else session = JSON.parse(_session);
+    return session;
+  }
+
+  private async extendSession(id: string, refreshExpiresAt: number) {
+    const updated = await this.pg.models.Driver.update(
+      { refreshExpiresAt },
+      { where: { id }, returning: true },
+    );
+    const session = updated[0] ? updated[1][0] : null;
+    if (session)
+      await this.redis.cacheCli.set(
+        `driverSession_${session.id}`,
+        JSON.stringify(session),
+        'EX',
+        900,
+      );
+    return session;
+  }
 }

@@ -26,8 +26,10 @@ export class TokenService {
   generateAccessToken(params: { driverId: string; sessionId: string }) {
     const now = Date.now();
 
-    const accessExpiresInSec = this.config.get<number>('JWT.access.expiresInSeconds') ?? 3600;
-    const refreshExpiresInSec = this.config.get<number>('JWT.refresh.expiresInSeconds') ?? 3600;
+    const accessExpiresInSec =
+      this.config.get<number>('JWT.access.expiresInSeconds') ?? 3600;
+    const refreshExpiresInSec =
+      this.config.get<number>('JWT.refresh.expiresInSeconds') ?? 3600;
 
     const accessExpiresAt = now + accessExpiresInSec * 1000;
     const refreshExpiresAt = now + refreshExpiresInSec * 1000;
@@ -57,5 +59,13 @@ export class TokenService {
         refreshExpiresAt,
       },
     };
+  }
+
+  decode(token: string): any {
+    try {
+      return this.jwt.decode(token);
+    } catch {
+      return null;
+    }
   }
 }

@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { DriverRequestOtpInputDto, DriverVerifyOtpInputDto } from 'src/dtos/driver.dto';
+import {
+  DriverRequestOtpInputDto,
+  DriverVerifyOtpInputDto,
+} from 'src/dtos/driver.dto';
 import { handleServCliResonse } from 'src/response/httpException.filter';
 import { MainServiceClient } from 'src/services/main.service';
 
@@ -24,6 +27,17 @@ export class DriverAuthService {
       query: body,
     });
 
+    return handleServCliResonse(data);
+  }
+
+  async authorize(token: string) {
+    const data = await this.MainSrvCli.callAction({
+      provider: 'DRIVERS',
+      action: 'authorize',
+      query: {
+        token,
+      },
+    });
     return handleServCliResonse(data);
   }
 }

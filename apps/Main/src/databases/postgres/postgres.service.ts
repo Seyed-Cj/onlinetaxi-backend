@@ -28,7 +28,7 @@ export class PostgresService implements OnModuleInit {
       foreignKey: 'driverId',
       as: 'session',
     });
-    models.Driver.belongsTo(models.Driver, {
+    models.DriverSession.belongsTo(models.Driver, {
       foreignKey: 'driverId',
       as: 'driver',
     });
