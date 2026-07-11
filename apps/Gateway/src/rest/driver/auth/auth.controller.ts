@@ -19,15 +19,19 @@ import { HttpExceptionFilter } from 'src/response/httpException.filter';
 import { ResponeInterceptor } from 'src/response/response.interceptor';
 import type { Response } from 'express';
 import { DriverAuthGuard } from './auth.guard';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Driver:Auth')
 @Controller('auth')
+@ApiBearerAuth('Authorization')
+@UseGuards(DriverAuthGuard)
 @UseFilters(HttpExceptionFilter)
 @UseInterceptors(ResponeInterceptor)
 export class DriverAuthController {
   constructor(private readonly driverAuthService: DriverAuthService) {}
 
   @Post('request-otp')
+  @Public()
   @ApiOperation({ summary: 'request otp in app by phone number' })
   async requestOtp(@Body() body: DriverRequestOtpInputDto) {
     const requestOtpData = await this.driverAuthService.requestOtp(body);
@@ -35,6 +39,7 @@ export class DriverAuthController {
   }
 
   @Post('verify-otp')
+  @Public()
   @ApiOperation({ summary: 'verify otp sent to driver phone number' })
   async requestVerify(
     @Body() body: DriverVerifyOtpInputDto,
@@ -44,8 +49,6 @@ export class DriverAuthController {
     return verifyOtpData;
   }
 
-  @ApiBearerAuth('Authorization')
-  @UseGuards(DriverAuthGuard)
   @Get('profile')
   @ApiOperation({ summary: 'Get driver profile' })
   async getProfile(@Request() req) {
