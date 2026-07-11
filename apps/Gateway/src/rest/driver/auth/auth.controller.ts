@@ -16,7 +16,7 @@ import {
   DriverVerifyOtpInputDto,
 } from 'src/dtos/driver.dto';
 import { HttpExceptionFilter } from 'src/response/httpException.filter';
-import { ResponeInterceptor } from 'src/response/response.interceptor';
+import { ResponseInterceptor } from 'src/response/response.interceptor';
 import type { Response } from 'express';
 import { DriverAuthGuard } from './auth.guard';
 import { Public } from 'src/common/decorators/public.decorator';
@@ -26,7 +26,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 @ApiBearerAuth('Authorization')
 @UseGuards(DriverAuthGuard)
 @UseFilters(HttpExceptionFilter)
-@UseInterceptors(ResponeInterceptor)
+@UseInterceptors(ResponseInterceptor)
 export class DriverAuthController {
   constructor(private readonly driverAuthService: DriverAuthService) {}
 

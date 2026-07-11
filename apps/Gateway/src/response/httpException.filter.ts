@@ -15,7 +15,7 @@ export function throwHttpErr(errorData: ServiceClientOutputDto<any>) {
   );
 }
 
-export function handleServCliResonse(data: ServiceClientOutputDto<any>) {
+export function handleServCliResponse(data: ServiceClientOutputDto<any>) {
   if (data?.status != 'SUCCEED') throwHttpErr(data);
   return data.data;
 }

@@ -3,7 +3,7 @@ import {
   DriverRequestOtpInputDto,
   DriverVerifyOtpInputDto,
 } from 'src/dtos/driver.dto';
-import { handleServCliResonse } from 'src/response/httpException.filter';
+import { handleServCliResponse } from 'src/response/httpException.filter';
 import { MainServiceClient } from 'src/services/main.service';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class DriverAuthService {
       query: body,
     });
 
-    return handleServCliResonse(data);
+    return handleServCliResponse(data);
   }
 
   async verifyOtp(body: DriverVerifyOtpInputDto) {
@@ -27,7 +27,7 @@ export class DriverAuthService {
       query: body,
     });
 
-    return handleServCliResonse(data);
+    return handleServCliResponse(data);
   }
 
   async authorize(token: string) {
@@ -36,6 +36,6 @@ export class DriverAuthService {
       action: 'authorize',
       query: { token },
     });
-    return handleServCliResonse(data);
+    return handleServCliResponse(data);
   }
 }

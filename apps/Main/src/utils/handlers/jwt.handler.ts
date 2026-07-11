@@ -43,7 +43,7 @@ export class JwtHandler {
   }
 
   private getTokenName(tokenName: string, userType: UserType) {
-    return `${this.projectName.toLowerCase()}_dev_${tokenName.toLowerCase()}_${userType.toLowerCase()}`;
+    return `${this.projectName.toLowerCase()}_${tokenName.toLowerCase()}_${userType.toLowerCase()}`;
   }
 
   private getOptions(type: JwtTypeEnum) {
