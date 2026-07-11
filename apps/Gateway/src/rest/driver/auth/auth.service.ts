@@ -34,9 +34,7 @@ export class DriverAuthService {
     const data = await this.MainSrvCli.callAction({
       provider: 'DRIVERS',
       action: 'authorize',
-      query: {
-        token,
-      },
+      query: { token },
     });
     return handleServCliResonse(data);
   }

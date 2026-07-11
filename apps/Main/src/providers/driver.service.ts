@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PostgresService } from 'src/databases/postgres/postgres.service';
 import { RedisService } from 'src/databases/redis/redis.service';
 import {
@@ -21,11 +21,16 @@ export class DriverService {
     query,
   }: ServiceClientContextDto): Promise<ServiceResponseData> {
     const { phone } = query;
+
+    if (!phone || typeof phone !== 'string') {
+      throw new SrvErr(HttpStatus.BAD_REQUEST, 'Invalid phone');
+    }
+
     const key = `otp:${DriverService.role}:${phone}`;
     const existing = await this.redis.cacheCli.get(key);
     if (existing) throw new SrvErr(HttpStatus.BAD_REQUEST, 'otp already sent');
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const ttl = 20 * 60;
+    const ttl = 2 * 60;
     await this.redis.cacheCli.set(key, otp, 'EX', ttl);
 
     return {
@@ -52,6 +57,10 @@ export class DriverService {
     let driver = await this.pg.models.Driver.findOne({ where: { phone } });
     if (!driver) driver = await this.pg.models.Driver.create({ phone });
 
+    await this.pg.models.DriverSession.destroy({
+      where: { driverId: driver.id },
+    });
+
     const newSession = await this.pg.models.DriverSession.create({
       driverId: driver.id,
       refreshExpiresAt: +new Date(),
@@ -68,6 +77,19 @@ export class DriverService {
     });
     await newSession.reload();
 
+    await this.redis.cacheCli.set(
+      `driver_${driver.id}`,
+      JSON.stringify(JSON.parse(JSON.stringify(driver))),
+      'EX',
+      900,
+    );
+    await this.redis.cacheCli.set(
+      `driverSession_${newSession.id}`,
+      JSON.stringify(newSession),
+      'EX',
+      900,
+    );
+
     return {
       message: 'OTP verifyed successfuly!',
       data: {
@@ -82,8 +104,6 @@ export class DriverService {
     query: { token },
   }: ServiceClientContextDto): Promise<ServiceResponseData> {
     let isAuthorized = false;
-    let clearCookie: string | null = 'auth_driver';
-
     let tokenData;
     let driver;
     let session;
@@ -97,12 +117,14 @@ export class DriverService {
         session = await this.getSessionById(decodedToken.sessionId);
         const now = Date.now();
 
-        if (+new Date(decodedToken.refreshExpiresAt) <= now) {
+        if (decodedToken.refreshExpiresAt <= now) {
           await this.pg.models.DriverSession.destroy({
             where: { id: decodedToken.sessionId },
           });
-          await this.redis.cacheCli.del(`driverSession_${decodedToken.sessionId}`);
-        } else if (+new Date(decodedToken.accessExpiresAt) <= now) {
+          await this.redis.cacheCli.del(
+            `driverSession_${decodedToken.sessionId}`,
+          );
+        } else if (decodedToken.accessExpiresAt <= now) {
           if (session) {
             tokenData = this.jwtService.generateAccessToken(
               driverId,
@@ -122,13 +144,12 @@ export class DriverService {
         }
       }
     }
-    if (isAuthorized) clearCookie = null;
+
     return {
       data: {
         isAuthorized,
         driver,
         session,
-        clearCookie,
         tokenData,
         isActive: driver?.isActive ?? null,
       },
@@ -176,7 +197,7 @@ export class DriverService {
   }
 
   private async extendSession(id: string, refreshExpiresAt: number) {
-    const updated = await this.pg.models.Driver.update(
+    const updated = await this.pg.models.DriverSession.update(
       { refreshExpiresAt },
       { where: { id }, returning: true },
     );
