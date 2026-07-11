@@ -8,6 +8,7 @@ import { PassengerModule } from 'src/rest/passenger/passenger.module';
 interface SwaggerModuleItem {
   path: string;
   module?: any;
+  bearer?: boolean;
 }
 
 export function setupSwagger(
@@ -24,19 +25,32 @@ export function setupSwagger(
     .setVersion(swaggerVersion)
     .setDescription(swaggerDescription)
     .build();
-  const documents = SwaggerModule.createDocument(app, swaggerOptions);
+  const documents = SwaggerModule.createDocument(app, swaggerOptions, {
+    include: [AdminModule],
+  });
   SwaggerModule.setup(`${apiVersion}/docs`, app, documents);
 
   const modules: SwaggerModuleItem[] = [
-    { path: 'admin', module: AdminModule },
-    { path: 'driver', module: DriverModule },
-    { path: 'passenger', module: PassengerModule },
+    { path: 'admin', module: AdminModule, bearer: false },
+    { path: 'driver', module: DriverModule, bearer: true },
+    { path: 'passenger', module: PassengerModule, bearer: true },
   ];
 
-  modules.forEach(({ path, module }) => {
-    const doc = SwaggerModule.createDocument(app, swaggerOptions, {
-      include: [module],
-    });
+  modules.forEach(({ path, module, bearer }) => {
+    let optionBuilder = new DocumentBuilder()
+      .setTitle(`${swaggerTitle} - ${path}`)
+      .setDescription(swaggerDescription)
+      .setVersion(swaggerVersion)
+    
+    if(bearer) {
+      optionBuilder = optionBuilder.addBearerAuth(
+        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        'Authorization'
+      )
+    }
+
+    const options = optionBuilder.build()
+    const doc = SwaggerModule.createDocument(app, options, { include: [module] })
     SwaggerModule.setup(`${apiVersion}/docs/${path}`, app, doc);
   });
 }
