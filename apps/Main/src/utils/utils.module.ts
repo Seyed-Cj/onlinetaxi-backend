@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { TokenService } from './handlers/token.service';
+import { JwtHandler } from './handlers/jwt.handler';
+import { UtilsService } from './utils.service';
 
 @Global()
 @Module({
@@ -9,7 +10,7 @@ import { TokenService } from './handlers/token.service';
       global: true,
     }),
   ],
-  providers: [TokenService],
-  exports: [TokenService],
+  providers: [UtilsService ,JwtHandler],
+  exports: [UtilsService ,JwtHandler],
 })
 export class UtilsModule {}

@@ -24,6 +24,19 @@ export class PostgresService implements OnModuleInit {
     });
     sequlizeInstance.addModels(Object.values(models));
 
+    models.Admin.hasMany(models.AdminSession, {
+      foreignKey: 'adminId',
+      as: 'sessions',
+    });
+    models.AdminSession.belongsTo(models.Admin, {
+      foreignKey: 'adminId',
+      as: 'admin',
+    });
+    models.Admin.addScope('withoutPassword', {
+      attributes: {
+        exclude: ['password', 'salt'],
+      },
+    });
     models.Driver.hasOne(models.DriverSession, {
       foreignKey: 'driverId',
       as: 'session',
@@ -34,7 +47,7 @@ export class PostgresService implements OnModuleInit {
     });
 
     try {
-      sequlizeInstance.sync({ alter: true });
+      await sequlizeInstance.sync({ alter: true });
     } catch (e) {
       this.logger.fatal('Syncing error');
       this.logger.fatal(e);

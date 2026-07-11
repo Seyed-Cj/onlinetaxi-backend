@@ -6,7 +6,7 @@ import {
   ServiceResponseData,
   SrvErr,
 } from 'src/services/dto';
-import { TokenService } from 'src/utils/handlers/token.service';
+import { JwtHandler } from 'src/utils/handlers/jwt.handler';
 
 @Injectable()
 export class DriverService {
@@ -14,7 +14,7 @@ export class DriverService {
   constructor(
     private readonly pg: PostgresService,
     private readonly redis: RedisService,
-    private readonly tokenService: TokenService,
+    private readonly jwtService: JwtHandler,
   ) {}
 
   async requestOtp({
@@ -57,13 +57,14 @@ export class DriverService {
       refreshExpiresAt: +new Date(),
     });
 
-    const accessToken = await this.tokenService.generateAccessToken({
-      driverId: driver.id,
-      sessionId: newSession.id,
-    });
+    const tokenData = this.jwtService.generateAccessToken(
+      driver.id,
+      'DRIVER',
+      newSession.id,
+    );
 
     await newSession.update({
-      refreshExpiresAt: accessToken.payload.refreshExpiresAt,
+      refreshExpiresAt: tokenData.payload.refreshExpiresAt,
     });
     await newSession.reload();
 
@@ -72,7 +73,7 @@ export class DriverService {
       data: {
         success: true,
         phone,
-        accessToken,
+        tokenData,
       },
     };
   }
@@ -87,26 +88,27 @@ export class DriverService {
     let driver;
     let session;
 
-    const decodedToken: any = this.tokenService.decode(token);
+    const decodedToken = this.jwtService.decodeAccessToken(token);
 
     if (decodedToken) {
-      const driverId = decodedToken.did;
+      const driverId = decodedToken.accountId;
       driver = await this.getDriverById(driverId);
       if (driver) {
-        session = await this.getSessionById(decodedToken.sid);
+        session = await this.getSessionById(decodedToken.sessionId);
         const now = Date.now();
 
         if (+new Date(decodedToken.refreshExpiresAt) <= now) {
           await this.pg.models.DriverSession.destroy({
-            where: { id: decodedToken.sid },
+            where: { id: decodedToken.sessionId },
           });
-          await this.redis.cacheCli.del(`driverSession_${decodedToken.sid}`);
+          await this.redis.cacheCli.del(`driverSession_${decodedToken.sessionId}`);
         } else if (+new Date(decodedToken.accessExpiresAt) <= now) {
           if (session) {
-            tokenData = this.tokenService.generateAccessToken({
+            tokenData = this.jwtService.generateAccessToken(
               driverId,
-              sessionId: session.id,
-            });
+              'DRIVER',
+              session.id,
+            );
 
             session = await this.extendSession(
               session.id,

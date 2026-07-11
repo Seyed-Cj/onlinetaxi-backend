@@ -1,5 +1,9 @@
 import { registerAs } from '@nestjs/config';
 
+const ServerConfig = registerAs('Server', () => ({
+  name: 'online-taxi',
+}))
+
 const DatabaseConfig = registerAs('Database', () => ({
   database: 'taxidb',
   username: 'onlinetaxi',
@@ -20,4 +24,4 @@ const JwtConfig = registerAs('JWT', () => ({
   refresh: { secret: 'REFRESH_SECRET', expiresInSeconds: 60 * 60 * 24 * 7 },
 }));
 
-export const configurations = [DatabaseConfig, RedisConfig, JwtConfig];
+export const configurations = [DatabaseConfig, RedisConfig, JwtConfig, ServerConfig];
