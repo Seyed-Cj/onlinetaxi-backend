@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { DriverAuthService } from './auth.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   DriverRequestOtpInputDto,
   DriverVerifyOtpInputDto,
@@ -44,6 +44,7 @@ export class DriverAuthController {
     return verifyOtpData;
   }
 
+  @ApiBearerAuth('Authorization')
   @UseGuards(DriverAuthGuard)
   @Get('profile')
   @ApiOperation({ summary: 'Get driver profile' })
