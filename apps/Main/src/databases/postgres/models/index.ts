@@ -1,2 +1,3 @@
 export * from './driver/index';
-export * from './Admin/index';
+export * from './admin/index';
+export * from './passenger/index';

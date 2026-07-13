@@ -16,11 +16,12 @@ import type { Response } from 'express';
 import { Public } from 'src/common/decorators/public.decorator';
 import { PassengerAuthService } from './auth.service';
 import { PassengerRequestOtpInputDto, PassengerVerifyOtpInputDto } from 'src/dtos/passenger.dto';
+import { PassengerAuthGuard } from './auth.guard';
 
 @ApiTags('Driver:Auth')
 @Controller('auth')
 @ApiBearerAuth('Authorization')
-// @UseGuards(DriverAuthGuard)
+@UseGuards(PassengerAuthGuard)
 @UseFilters(HttpExceptionFilter)
 @UseInterceptors(ResponseInterceptor)
 export class PassengerAuthController {

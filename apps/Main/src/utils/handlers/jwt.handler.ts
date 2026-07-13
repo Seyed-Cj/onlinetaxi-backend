@@ -13,7 +13,7 @@ export enum TokenAvailabilityTypeEnum {
   UNAVAILABLE = 'UNAVAILABLE',
 }
 
-export type UserType = 'ADMIN' | 'DRIVER';
+export type UserType = 'ADMIN' | 'DRIVER' | 'PASSENGER';
 
 export interface AccessPayloadType {
   userType: UserType;

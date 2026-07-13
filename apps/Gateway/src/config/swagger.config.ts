@@ -16,7 +16,7 @@ export function setupSwagger(
   configService: ConfigService,
 ) {
   const apiVersion = configService.get('App.version');
-  const swaggerTitle = configService.get('Swagger.title');
+  const swaggerTitle = configService.get('Swagger.Title');
   const swaggerDescription = configService.get('Swagger.Description');
   const swaggerVersion = configService.get('Swagger.Version');
 

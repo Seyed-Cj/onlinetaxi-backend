@@ -1,14 +1,12 @@
 import { Controller, HttpStatus } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { SelfActionService } from './actions.service';
-import { SelfEventService } from './events.service';
 import { ServiceClientActionInputDto, ServiceClientOutputDto } from './dto';
 
 @Controller()
 export class ServiceController {
   constructor(
     private readonly actions: SelfActionService,
-    // private readonly events: SelfEventService,
   ) {}
 
   @MessagePattern('callAction')
