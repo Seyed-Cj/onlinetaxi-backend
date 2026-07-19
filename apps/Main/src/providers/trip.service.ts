@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { Transaction } from 'sequelize';
 import { PostgresService } from 'src/databases/postgres/postgres.service';
 import {
   ServiceClientContextDto,
@@ -38,5 +39,49 @@ export class TripService {
       message: 'Trip created successfully',
       data: trip,
     };
+  }
+
+  async accept({
+    query,
+  }: ServiceClientContextDto): Promise<ServiceResponseData> {
+    const { tripId, driverId } = query;
+
+    if (!tripId || !driverId) {
+      throw new SrvErr(HttpStatus.BAD_REQUEST, 'invalid input');
+    }
+
+    return await this.pg.connection.transaction(
+      async (transaction: Transaction) => {
+        const trip = await this.pg.models.Trip.findOne({
+          where: {
+            id: tripId,
+            status: 'REQUESTED',
+          },
+          lock: transaction.LOCK.UPDATE,
+          transaction,
+        });
+
+        if (!trip) {
+          throw new SrvErr(
+            HttpStatus.CONFLICT,
+            'Trip already accepted or not found',
+          );
+        }
+
+        await trip.update(
+          {
+            driverId,
+            status: 'ACCEPTED',
+            acceptedAt: new Date(),
+          },
+          { transaction },
+        );
+
+        return {
+          message: 'Trip accepted succesfully',
+          data: trip,
+        };
+      },
+    );
   }
 }
