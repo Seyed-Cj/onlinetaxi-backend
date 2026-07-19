@@ -4,10 +4,17 @@ import { SelfActionService } from './actions.service';
 import { DriverService } from 'src/providers/driver.service';
 import { AdminService } from 'src/providers/admin.service';
 import { PassengerService } from 'src/providers/passenger.service';
+import { TripService } from 'src/providers/trip.service';
 
 @Module({
   imports: [],
   controllers: [ServiceController],
-  providers: [AdminService, DriverService, PassengerService, SelfActionService],
+  providers: [
+    AdminService,
+    DriverService,
+    PassengerService,
+    TripService,
+    SelfActionService,
+  ],
 })
 export class ServiceModule {}
