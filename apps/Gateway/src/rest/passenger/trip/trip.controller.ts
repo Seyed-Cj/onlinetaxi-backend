@@ -16,7 +16,7 @@ import { PassengerTripService } from './trip.service';
 
 @ApiTags('Passenger:Trip')
 @ApiBearerAuth('Authorization')
-@Controller('passenger/trip')
+@Controller('trip')
 @UseGuards(PassengerAuthGuard)
 @UseFilters(HttpExceptionFilter)
 @UseInterceptors(ResponseInterceptor)

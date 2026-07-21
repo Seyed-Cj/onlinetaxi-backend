@@ -14,7 +14,7 @@ import { ResponseInterceptor } from 'src/response/response.interceptor';
 import { DriverTripService } from './trip.service';
 
 @ApiTags('Driver:Trip')
-@Controller('driver/trips')
+@Controller('trips')
 @ApiBearerAuth('Authorization')
 @UseGuards(DriverAuthGuard)
 @UseFilters(HttpExceptionFilter)

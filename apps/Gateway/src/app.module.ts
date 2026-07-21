@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { configurations } from './config/configuration';
 import { RestModule } from './rest/rest.module';
 import { ServiceModule } from './services/service.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -13,8 +14,7 @@ import { ServiceModule } from './services/service.module';
     }),
     RestModule,
     ServiceModule,
+    SocketModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
