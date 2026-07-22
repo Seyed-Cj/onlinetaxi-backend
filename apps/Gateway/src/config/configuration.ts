@@ -1,13 +1,13 @@
 import { registerAs } from '@nestjs/config';
 
 const AppConfig = registerAs('App', () => ({
-  port: 3000,
-  version: 'v1',
+  port: Number(process.env.PORT) || 3000,
+  version: process.env.APP_VERSION || 'v1',
 }));
 
 const SwaggerConfig = registerAs('Swagger', () => ({
   Title: 'OnlineTaxi-Backend',
-  Version: '1.0.0',
+  Version: process.env.APP_VERSION || 'v1',
   Description: 'online taxi api like snapp aplication',
 }));
 

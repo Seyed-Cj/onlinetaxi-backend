@@ -9,7 +9,7 @@ import { MainServiceClient } from './main.service';
       {
         name: 'Main',
         transport: Transport.TCP,
-        options: { host: '127.0.0.1', port: 4000 },
+        options: { host: 'main', port: 4000 },
       },
     ]),
   ],

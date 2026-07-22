@@ -5,23 +5,24 @@ const ServerConfig = registerAs('Server', () => ({
 }))
 
 const DatabaseConfig = registerAs('Database', () => ({
-  database: 'taxidb',
-  username: 'onlinetaxi',
-  password: 'TAXI1234',
-  port: 5433,
+  database: process.env.DB_NAME || 'test',
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || '',
+  host: process.env.DB_HOST || 'postgres',
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
   dialect: 'postgres',
 }));
 
 const RedisConfig = registerAs('Redis', () => ({
-  host: '127.0.0.1',
-  port: 6379,
-  cacheDb: 10,
-  sessionDb: 11,
+  host: process.env.REDIS_HOST || 'redis',
+  port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT, 10) : 6379,
+  cacheDb: Number(process.env.CACHE_DB) || 10,
+  sessionDb: Number(process.env.SESSION_DB) || 11,
 }));
 
 const JwtConfig = registerAs('JWT', () => ({
-  access: { secret: 'ACCESS_SECRET', expiresInSeconds: 60 * 15 },
-  refresh: { secret: 'REFRESH_SECRET', expiresInSeconds: 60 * 60 * 24 * 7 },
+  access: { secret: process.env.ACCESS_SECRET || 'ACCESS_SECRET', expiresInSeconds: Number(process.env.ACCESS_EXPIRES_IN) || 60 * 15 },
+  refresh: { secret: process.env.REFRESH_SECRET || 'REFRESH_SECRET', expiresInSeconds: Number(process.env.REFRESH_EXPIRES_IN) || 60 * 60 * 24 * 7 },
 }));
 
 export const configurations = [DatabaseConfig, RedisConfig, JwtConfig, ServerConfig];
