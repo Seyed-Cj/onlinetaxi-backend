@@ -82,6 +82,12 @@ export class Trip extends Model {
     type: DataType.DATE,
     allowNull: true,
   })
+  arrivedAt?: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
   startedAt?: Date;
 
   @Column({

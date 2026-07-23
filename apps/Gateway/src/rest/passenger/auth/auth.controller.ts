@@ -18,7 +18,7 @@ import { PassengerAuthService } from './auth.service';
 import { PassengerRequestOtpInputDto, PassengerVerifyOtpInputDto } from 'src/dtos/passenger.dto';
 import { PassengerAuthGuard } from './auth.guard';
 
-@ApiTags('Driver:Auth')
+@ApiTags('Passenger:Auth')
 @Controller('auth')
 @ApiBearerAuth('Authorization')
 @UseGuards(PassengerAuthGuard)
