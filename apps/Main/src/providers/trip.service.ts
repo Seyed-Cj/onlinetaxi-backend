@@ -159,7 +159,7 @@ export class TripService {
 
         await trip.update(
           {
-            status: 'TRIP_IN_PROGRESS',
+            status: 'IN_PROGRESS',
             startedAt: new Date(),
           },
           { transaction },
@@ -188,7 +188,7 @@ export class TripService {
           where: {
             id: tripId,
             driverId,
-            status: 'TRIP_IN_PROGRESS',
+            status: 'IN_PROGRESS',
           },
           lock: transaction.LOCK.UPDATE,
           transaction,
@@ -203,7 +203,7 @@ export class TripService {
 
         await trip.update(
           {
-            status: 'TRIP_FINISHED',
+            status: 'FINISHED',
             finishedAt: new Date(),
           },
           { transaction },
