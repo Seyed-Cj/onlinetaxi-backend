@@ -39,6 +39,7 @@ export class SocketGateway implements OnGatewayInit {
 
     switch (acc_type) {
       case 'DRIVER':
+        client.join('drivers')
         client.join(`driver-${driver.id}`);
         this.logger.log(`Driver ${driver.id} connected`);
         break;
