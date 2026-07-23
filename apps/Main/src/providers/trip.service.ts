@@ -128,4 +128,48 @@ export class TripService {
       },
     );
   }
+
+  async start({
+    query,
+  }: ServiceClientContextDto): Promise<ServiceResponseData> {
+    const { tripId, driverId } = query;
+
+    if (!tripId || !driverId) {
+      throw new SrvErr(HttpStatus.BAD_REQUEST, 'Invalid input');
+    }
+
+    return await this.pg.connection.transaction(
+      async (transaction: Transaction) => {
+        const trip = await this.pg.models.Trip.findOne({
+          where: {
+            id: tripId,
+            driverId,
+            status: 'DRIVER_ARRIVED',
+          },
+          lock: transaction.LOCK.UPDATE,
+          transaction,
+        });
+
+        if (!trip) {
+          throw new SrvErr(
+            HttpStatus.CONFLICT,
+            'Trip not found or driver not authorized to start the trip',
+          );
+        }
+
+        await trip.update(
+          {
+            status: 'TRIP_IN_PROGRESS',
+            startedAt: new Date(),
+          },
+          { transaction },
+        );
+
+        return {
+          message: 'Trip started successfully!',
+          data: trip,
+        };
+      },
+    );
+  }
 }

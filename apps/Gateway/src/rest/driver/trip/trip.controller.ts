@@ -39,4 +39,13 @@ export class DriverTripController {
       driverId: req.driver.id,
     });
   }
+
+  @Post(':tripId/start')
+  @ApiOperation({ summary: 'Start trip by driver' })
+  async startTrip(@Param('tripId') tripId: string, @Request() req) {
+    return this.tripService.startTrip({
+      tripId,
+      driverId: req.driver.id,
+    });
+  }
 }

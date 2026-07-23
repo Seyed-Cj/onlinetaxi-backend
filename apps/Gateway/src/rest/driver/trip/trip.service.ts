@@ -47,4 +47,25 @@ export class DriverTripService {
 
     return handleServCliResponse(res);
   }
+
+  async startTrip(data: any) {
+    const res = await this.mainSrvCli.callAction({
+      provider: 'TRIPS',
+      action: 'start',
+      query: data,
+    });
+
+    const trip = res.data;
+
+    //websocket notification to passenger that driver has started the trip
+    this.socketGateway.server
+      .to(`passenger-${trip.passengerId}`)
+      .emit('trip:started', {
+        tripId: trip.id,
+        driverId: trip.driverId,
+        startedAt: trip.startedAt,
+      });
+
+    return handleServCliResponse(res);
+  }
 }
