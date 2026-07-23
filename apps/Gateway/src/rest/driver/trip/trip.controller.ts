@@ -48,4 +48,13 @@ export class DriverTripController {
       driverId: req.driver.id,
     });
   }
+
+  @Post(':tripId/finish')
+  @ApiOperation({ summary: 'Finish trip by driver' })
+  async finishTrip(@Param('tripId') tripId: string, @Request() req) {
+    return this.tripService.finishTrip({
+      tripId,
+      driverId: req.driver.id,
+    });
+  }
 }

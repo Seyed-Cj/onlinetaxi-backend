@@ -68,4 +68,25 @@ export class DriverTripService {
 
     return handleServCliResponse(res);
   }
+
+  async finishTrip(data: any) {
+    const res = await this.mainSrvCli.callAction({
+      provider: 'TRIPS',
+      action: 'finish',
+      query: data,
+    });
+
+    const trip = res.data;
+
+    //websocket notification to passenger that driver has finished the trip
+    this.socketGateway.server
+      .to(`passenger-${trip.passengerId}`)
+      .emit('trip:finished', {
+        tripId: trip.id,
+        driverId: trip.driverId,
+        finishedAt: trip.finishedAt,
+      });
+
+    return handleServCliResponse(res);
+  }
 }

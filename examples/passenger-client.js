@@ -16,6 +16,18 @@ socket.on("trip:accepted", (trip) => {
   console.log("trip accepted:", trip.driverId);
 });
 
+socket.on("trip:driver_arrived", (data) => {
+  console.log("driver arrived:", data.driverId);
+});
+
+socket.on("trip:started", (data) => {
+  console.log("trip started:", data.driverId);
+});
+
+socket.on("trip:finished", (data) => {
+  console.log("trip finished:", data.driverId);
+});
+
 socket.on("disconnect", () => {
   console.log("disconnected");
 });
